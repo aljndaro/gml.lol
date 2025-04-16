@@ -111,11 +111,11 @@ async function loadExistingBots() {
 }
 
 // Global bot watching
-globalSubscriber.subscribe('__keyspace@0__:bots:*', (err, count) => {
+globalSubscriber.subscribe('bots:*', (err, count) => {
   if (err) console.error('[Network] Error subscribing to bot events:', err);
 });
 
-globalSubscriber.subscribe('__keyspace@0__:bots:*', async (message, channel) => {
+globalSubscriber.subscribe('bots:*', async (message, channel) => {
   if (message === 'set' || message === 'hset') {
     try {
       const botKey = channel.split(':')[2];

@@ -8,6 +8,7 @@ import * as redis from "../redis";
 
 module.exports = async (client: Client, resourceId: string, token: string, clientId: string) => {
   // Validate required parameters
+  console.log(clientId)
   if (!token || !clientId) {
     console.error("Missing required parameters: token or clientId");
     return;

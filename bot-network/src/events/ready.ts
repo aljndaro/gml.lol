@@ -17,38 +17,58 @@ const event: BotEvent = {
       const data = JSON.parse(botData);
       if (!data.settings?.status?.text) {
         client2.user?.setPresence({
-          activities: [],
-          status: 'online'
+          status: "online",
         });
-        return;
+      } else {
+        client2.user?.setPresence({
+          activities: [
+            {
+              name: data.settings.status.text,
+            },
+          ],
+          status: data.settings.status.type || "dnd",
+        });
       }
-
-      client2.user?.setPresence({
-        activities: [
-          {
-            name: data.settings.status.text || "with drug dealers",
-          },
-        ],
-        status: data.settings.status.type || "dnd",
-      });
     }
 
-    // Subscribe to status changes 
-    const subscriber = client.duplicate();
-    await subscriber.connect();
-
-    await subscriber.subscribe(`botStatus:${resourceId}`, (message) => {
-      const status = JSON.parse(message);
-      client2.user?.setPresence({
-        activities: [
-          {
-            name: status.text || "with drug dealers",
+    // Enhanced Redis subscription logic
+    try {
+      const subscriber = client.duplicate();
+      await subscriber.connect();
+      await subscriber.pSubscribe(`__keyspace@0__:bots:${resourceId}`, async (event) => {
+        if (event === "set" || event === "hset") {
+          try {
+            const updatedBotData = await client.get(`bots:${resourceId}`);
+            if (updatedBotData) {
+              const data = JSON.parse(updatedBotData);
+              client2.user?.setPresence({
+                ...(data.settings?.status?.text
+                  ? {
+                    activities: [
+                      {
+                        name: data.settings.status.text,
+                      },
+                    ],
+                  }
+                  : {}),
+                status: data.settings?.status?.type || "online",
+              });
+            } else {
+              console.warn(`⚠️ [Network: ${resourceId}] No data found for the updated key.`);
+            }
+          } catch (error) {
+            console.error(`❌ [Network: ${resourceId}] Error fetching updated bot data:`, error);
           }
-        ],
-        status: status.type || "dnd"
+        } else {
+          console.log(`️⚠️ [Network: ${resourceId}] Ignored event: ${event}`);
+        }
       });
-    });
-  }
+
+
+    } catch (err) {
+      console.error(`❌ [Network: ${resourceId}] Failed to set up Redis subscriber:`, err);
+    }
+  },
 };
 
 export default event;

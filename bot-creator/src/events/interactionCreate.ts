@@ -24,13 +24,16 @@ const event: BotEvent = {
       if (interaction.customId === "tokenModal") {
         const submittedToken =
           interaction.fields.getTextInputValue("tokenInput");
+        const clientId =
+          interaction.fields.getTextInputValue("clientInput");
         const allDocuments = await client.hGetAll("bots");
         if (!allDocuments.length) {
           const resourceId = pika.gen("bot");
 
           let pendingBotData = {
             botToken: submittedToken,
-            resourceId: resourceId,
+            clientId: clientId,
+            resourceId,
             ownerId: interaction.user.id,
             settings: {
               state: 1,
