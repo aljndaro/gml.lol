@@ -4,18 +4,17 @@ import {
   Collection,
   PermissionFlagsBits,
 } from "discord.js";
+require("dotenv").config();
+
 const { Guilds, MessageContent, GuildMessages, GuildMembers } =
   GatewayIntentBits;
 const client = new Client({
   intents: [Guilds, MessageContent, GuildMessages, GuildMembers],
 });
 
-import { config } from "dotenv";
 import { readdirSync } from "fs";
 import { join } from "path";
 import { Command, SlashCommand } from "./types";
-config();
-
 client.slashCommands = new Collection<string, SlashCommand>();
 client.cooldowns = new Collection<string, number>();
 

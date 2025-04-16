@@ -29,7 +29,7 @@
         "tsc": "^2.0.4"
     },
     "devDependencies": {
-        "typescript": "^5.3.3"
+        "typescript": "^5.8.3"
     },
     "overrides": {
         "discord-api-types": "0.37.20"
